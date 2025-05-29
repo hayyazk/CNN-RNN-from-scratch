@@ -16,19 +16,25 @@ def lstm_cell(x_t, h_prev, c_prev, W_x, W_h, b):
     
     return h_t, c_t
 
-def lstm_unidirectional(x, W_x, W_h, b):
-    batch_size, time_steps, input_dim = x.shape
+def lstm_unidirectional(x, W_x, W_h, b, return_sequences=False):
+    batch_size, time_steps, _ = x.shape
     hidden_size = W_h.shape[0]
     
     h = np.zeros((batch_size, hidden_size))
     c = np.zeros((batch_size, hidden_size))
 
+    outputs = []
+
     for t in range(time_steps):
         h, c = lstm_cell(x[:, t, :], h, c, W_x, W_h, b)
+        outputs.append(h)
 
-    return h
+    if return_sequences:
+        return np.stack(outputs, axis=1)
+    else:
+        return h
 
-def lstm_bidirectional(x, W_x_f, W_h_f, b_f, W_x_b, W_h_b, b_b):
-    h_f = lstm_unidirectional(x, W_x_f, W_h_f, b_f)
-    h_b = lstm_unidirectional(x[:, ::-1, :], W_x_b, W_h_b, b_b)
-    return np.concatenate([h_f, h_b], axis=1)
+def lstm_bidirectional(x, W_x_f, W_h_f, b_f, W_x_b, W_h_b, b_b, return_sequences=False):
+    h_f = lstm_unidirectional(x, W_x_f, W_h_f, b_f, return_sequences)
+    h_b = lstm_unidirectional(x[:, ::-1, :], W_x_b, W_h_b, b_b, return_sequences)
+    return np.concatenate([h_f, h_b], axis=-1)
