@@ -21,11 +21,3 @@ def rnn_bidirectional(x, W_x_f, W_h_f, b_f, W_x_b, W_h_b, b_b, return_sequences=
     h_b = rnn_unidirectional(x[:, ::-1, :], W_x_b, W_h_b, b_b, return_sequences)
 
     return np.concatenate([h_f, h_b], axis=-1)
-
-    # h_b = h_b[:, ::-1, :]
-    # h_concat = np.concatenate([h_f, h_b], axis=-1)
-
-    # if return_sequences:
-    #     return h_concat
-    # else:
-    #     return h_concat[:, -1, :]  
