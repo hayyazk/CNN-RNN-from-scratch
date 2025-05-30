@@ -20,10 +20,8 @@ class Conv2D:
         out_h = (in_h + 2 * pad_h - kh) // self.stride + 1
         out_w = (in_w + 2 * pad_w - kw) // self.stride + 1
 
-        # Padding input
         x_padded = np.pad(x, ((0, 0), (pad_h, pad_h), (pad_w, pad_w), (0, 0)), mode='constant')
 
-        # Prepare output
         output = np.zeros((batch_size, out_h, out_w, out_c))
 
         for b in range(batch_size):
@@ -31,12 +29,10 @@ class Conv2D:
                 for i in range(0, out_h):
                     for j in range(0, out_w):
                         for ic in range(in_c):
-                            # Region to apply the filter on
                             region = x_padded[b,
                                               i * self.stride:i * self.stride + kh,
                                               j * self.stride:j * self.stride + kw,
-                                              ic]
-                            # Multiply and accumulate
+                                                ic]
                             output[b, i, j, oc] += np.sum(region * self.W[:, :, ic, oc])
                 output[b, :, :, oc] += self.b[oc]
         

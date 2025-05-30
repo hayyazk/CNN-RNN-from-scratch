@@ -3,8 +3,8 @@ import tensorflow as tf
 from tensorflow.keras.datasets import cifar10
 from sklearn.metrics import f1_score
 from conv_layer import Conv2D
-from max_pooling import MaxPooling2D
-from activation import relu, softmax
+from pooling import MaxPooling2D, AveragePooling2D
+from activation import linear, relu, softmax, sigmoid, tanh
 from dense_layer import Dense, Flatten
 
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
@@ -13,10 +13,10 @@ x_test = x_test.astype("float32") / 255.0
 y_train = y_train.flatten()
 y_test = y_test.flatten()
 
-# testing subset data (1000 data latih dan 10 data uji)
-x_train, y_train = x_train[:1000], y_train[:1000]
-x_test, y_test = x_test[:10], y_test[:10]
+# testing subset data (100 data uji)
+x_test, y_test = x_test[:100], y_test[:100]
 
+# Model Keras
 keras_model = tf.keras.Sequential([
     tf.keras.layers.Conv2D(8, 3, activation='relu', padding='same', input_shape=(32, 32, 3)),
     tf.keras.layers.MaxPooling2D(2),
@@ -33,25 +33,28 @@ keras_model.compile(optimizer='adam',
 
 keras_model.fit(x_train, y_train, epochs=3, batch_size=32, verbose=1)
 
-keras_preds = keras_model.predict(x_test).argmax(axis=1)
+keras_model.save("cnn_cifar10_model.h5")
+
+loaded_model = tf.keras.models.load_model("cnn_cifar10_model.h5")
+
+keras_preds = loaded_model.predict(x_test).argmax(axis=1)
 f1_keras = f1_score(y_test, keras_preds, average='macro')
-print("Macro F1-score (Keras):", f1_keras)
+print("Macro F1-score (Keras loaded):", f1_keras)
 
-# ekstraksi bobot dari layer-layer
-w1, b1 = keras_model.layers[0].get_weights()  # Conv2D(8)
-w2, b2 = keras_model.layers[2].get_weights()  # Conv2D(16)
-w3, b3 = keras_model.layers[5].get_weights()  # Dense(32)
-w4, b4 = keras_model.layers[6].get_weights()  # Dense(10)
+# Ekstraksi bobot dari model yang dimuat
+w1, b1 = loaded_model.layers[0].get_weights()
+w2, b2 = loaded_model.layers[2].get_weights()
+w3, b3 = loaded_model.layers[5].get_weights()
+w4, b4 = loaded_model.layers[6].get_weights()
 
+# Model from Scratch
 x = x_test
 x = Conv2D(w1, b1).forward(x)
 x = relu(x)
 x = MaxPooling2D().forward(x)
-
 x = Conv2D(w2, b2).forward(x)
 x = relu(x)
 x = MaxPooling2D().forward(x)
-
 x = Flatten().forward(x)
 x = Dense(w3, b3).forward(x)
 x = relu(x)
@@ -60,5 +63,6 @@ predictions = softmax(x)
 
 predicted_labels = predictions.argmax(axis=1)
 f1_manual = f1_score(y_test, predicted_labels, average='macro')
-print("Macro F1-score (manual forward):", f1_manual)
+print("Macro F1-score (Manual forward):", f1_manual)
+print(f"Selisih    : {abs(f1_keras-f1_manual)}")
 

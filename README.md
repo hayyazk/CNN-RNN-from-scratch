@@ -15,7 +15,7 @@
     │       cnn_training.ipynb
     │       conv_layer.py
     │       dense_layer.py
-    │       max_pooling.py
+    │       pooling.py
     ├───lstm
     │       lstm.py
     │       lstm_training.ipynb
