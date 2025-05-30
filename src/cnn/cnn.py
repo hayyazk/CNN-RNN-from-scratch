@@ -4,7 +4,7 @@ from tensorflow.keras.datasets import cifar10
 from sklearn.metrics import f1_score
 from conv_layer import Conv2D
 from pooling import MaxPooling2D, AveragePooling2D
-from activation import linear, relu, softmax, sigmoid, tanh
+from activation import Activation
 from dense_layer import Dense, Flatten
 
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
@@ -41,7 +41,6 @@ keras_preds = loaded_model.predict(x_test).argmax(axis=1)
 f1_keras = f1_score(y_test, keras_preds, average='macro')
 print("Macro F1-score (Keras loaded):", f1_keras)
 
-# Ekstraksi bobot dari model yang dimuat
 w1, b1 = loaded_model.layers[0].get_weights()
 w2, b2 = loaded_model.layers[2].get_weights()
 w3, b3 = loaded_model.layers[5].get_weights()
@@ -50,16 +49,16 @@ w4, b4 = loaded_model.layers[6].get_weights()
 # Model from Scratch
 x = x_test
 x = Conv2D(w1, b1).forward(x)
-x = relu(x)
+x = Activation.relu(x)
 x = MaxPooling2D().forward(x)
 x = Conv2D(w2, b2).forward(x)
-x = relu(x)
+x = Activation.relu(x)
 x = MaxPooling2D().forward(x)
 x = Flatten().forward(x)
 x = Dense(w3, b3).forward(x)
-x = relu(x)
+x = Activation.relu(x)
 x = Dense(w4, b4).forward(x)
-predictions = softmax(x)
+predictions = Activation.softmax(x)
 
 predicted_labels = predictions.argmax(axis=1)
 f1_manual = f1_score(y_test, predicted_labels, average='macro')
