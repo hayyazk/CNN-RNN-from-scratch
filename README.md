@@ -29,6 +29,9 @@
     - Training hyperparameter dapat ditemukan dalam file `{nama-model}_training.ipynb`
 ## Cara Setup dan Run
 ### CNN
+#### From Scratch Inference
+- Jalankan `py src/cnn/cnn.py`
+#### Hyperparameter Training
 - Buka file cnn_training.ipynb
 - Jalankan Jupyter Notebook
 ### RNN
